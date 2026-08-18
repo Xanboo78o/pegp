@@ -190,3 +190,12 @@ button { cursor: pointer; user-select: none; }
   .giant { font-size: 26px; padding: 26px 10px; }
   .addteam { grid-template-columns: 1fr; }
 }
+
+/* ── site-wide nav (every page) ── */
+.sitenav { display: flex; background: #222; overflow-x: auto; }
+.sitenav a {
+  flex: 1; padding: 13px 10px; font-size: 13px; font-weight: 900; letter-spacing: 1px;
+  color: #999; text-decoration: none; white-space: nowrap; text-align: center;
+  border-bottom: 4px solid transparent;
+}
+.sitenav a.on { color: #fff; border-bottom-color: var(--red); }
