@@ -1,12 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
    PeGP RACE CONTROL — Pembroke Grand Prix, Season One
-   quali (solo, best lap) → heats (wheel-to-wheel) → season
+   regatta model: TEAMS are stables (trailer, crew, tarps),
+   KARTS are the entries (max 4 per team). Karts race and
+   score; team championship = sum of its karts.
    ═══════════════════════════════════════════════════════════ */
 
 'use strict';
 const $ = id => document.getElementById(id);
 const PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 const POLE_BONUS = 3;
+const MAX_KARTS = 4;
 const SAVE_KEY = 'pegp_v1';
 
 /* ── state ── */
@@ -20,19 +23,43 @@ if (!S || !S.roster) {
         qualiLaps: 3, heatLaps: 4 };
 }
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
-function team(id) { return S.roster.find(t => t.id === id) || { name: '???', kart: '', crew: [] }; }
 
 /* crew roles */
 const ROLES = ['DRIVER', 'RIDER', 'PIT MANAGER', 'MECHANIC', 'STRATEGIST', 'TARP SECURITY'];
 const ROLE_ICON = { 'DRIVER': '🏃', 'RIDER': '🪑', 'PIT MANAGER': '📋', 'MECHANIC': '🔧', 'STRATEGIST': '🧠', 'TARP SECURITY': '🛡️' };
-/* migrate old two-driver teams */
+
+/* migrations: two-driver teams → crew; single-kart teams → karts[]
+   (a migrated team's first kart reuses the team id, so old quali/heat
+   records keyed by teamId still resolve) */
 S.roster.forEach(t => {
   if (!t.crew) {
     t.crew = [];
     if (t.d1) t.crew.push({ name: t.d1, role: 'DRIVER' });
     if (t.d2) t.crew.push({ name: t.d2, role: 'RIDER' });
   }
+  if (!t.karts) {
+    t.karts = [{ id: t.id, name: (t.kart || 'KART 1').toUpperCase() }];
+  }
 });
+save();
+
+/* kart lookups — race entities are KART ids */
+function kartsAll() { return S.roster.flatMap(t => t.karts.map(k => ({ t, k }))); }
+function findKart(kid) {
+  for (const t of S.roster) {
+    const k = t.karts.find(x => x.id === kid);
+    if (k) return { t, k };
+  }
+  return { t: { name: '???', karts: [] }, k: { id: kid, name: '???' } };
+}
+function label(kid) {
+  const { t, k } = findKart(kid);
+  return (t.karts && t.karts.length > 1) ? `${t.name} · ${k.name}` : t.name;
+}
+function speakLabel(kid) {
+  const { t, k } = findKart(kid);
+  return (t.karts && t.karts.length > 1) ? `${k.name}, team ${t.name}` : `team ${t.name}`;
+}
 
 /* ═══════════ AUDIO + ANNOUNCER ═══════════ */
 let AC = null, voice = null, speechOK = false;
@@ -151,7 +178,7 @@ document.querySelectorAll('#tabs button').forEach(b => {
   };
 });
 
-/* ═══════════ PADDOCK ═══════════ */
+/* ═══════════ PADDOCK — the trailers ═══════════ */
 $('roundName').value = S.round.name || '';
 $('roundName').oninput = e => { S.round.name = e.target.value; save(); };
 $('cfgQualiLaps').value = S.qualiLaps;
@@ -163,11 +190,10 @@ $('addTeamBtn').onclick = () => {
   const name = $('tName').value.trim().toUpperCase();
   if (!name) { say('Team needs a name.'); return; }
   if (S.roster.some(t => t.name === name)) { say('That team is already checked in.'); return; }
-  S.roster.push({
-    id: S.nextId++, name,
-    kart: $('tKart').value.trim().toUpperCase(),
-    crew: []
-  });
+  const kartName = $('tKart').value.trim().toUpperCase();
+  const t = { id: S.nextId++, name, crew: [], karts: [] };
+  t.karts.push({ id: S.nextId++, name: kartName || 'KART 1' });
+  S.roster.push(t);
   save();
   ['tName', 'tKart'].forEach(i => $(i).value = '');
   say(`Team ${name}. Checked in.`);
@@ -177,16 +203,24 @@ $('addTeamBtn').onclick = () => {
 function renderPaddock() {
   const box = $('teamCards');
   box.innerHTML = '';
-  if (!S.roster.length) { box.innerHTML = '<div class="empty">no teams checked in yet — the paddock is empty</div>'; return; }
+  if (!S.roster.length) { box.innerHTML = '<div class="empty">no teams checked in yet — the trailer lot is empty</div>'; return; }
   S.roster.forEach(t => {
     const d = document.createElement('div');
     d.className = 'tcard tall';
+    const kartsHtml = t.karts.map((k, i) =>
+      `<span class="crewchip kart">🛠 <b>${k.name}</b><button class="kx" data-i="${i}">✕</button></span>`
+    ).join('');
+    const kartAdd = t.karts.length < MAX_KARTS
+      ? `<span class="crewchip add"><input class="kname" placeholder="new kart" maxlength="20"><button class="kadd">+ KART</button></span>`
+      : `<span class="crewchip full">FULL STABLE (${MAX_KARTS})</span>`;
     const crewHtml = t.crew.map((c, i) =>
       `<span class="crewchip">${ROLE_ICON[c.role] || '👤'} <b>${c.name}</b> <small>${c.role}</small><button class="cx" data-i="${i}">✕</button></span>`
-    ).join('') || '<span class="empty">no crew yet — a team needs at least a driver and a rider</span>';
+    ).join('') || '<span class="empty">no crew yet</span>';
     d.innerHTML = `<div class="tinfo">
         <div class="tname">${t.name}</div>
-        ${t.kart ? `<div class="tkart">🛠 ${t.kart}</div>` : ''}
+        <div class="secl">KARTS — max ${MAX_KARTS} entries</div>
+        <div class="crewline">${kartsHtml}${kartAdd}</div>
+        <div class="secl">CREW</div>
         <div class="crewline">${crewHtml}</div>
         <div class="crewadd">
           <input class="cname" placeholder="crew name" maxlength="20">
@@ -195,12 +229,34 @@ function renderPaddock() {
         </div>
       </div><button class="x">✕</button>`;
     d.querySelector('.x').onclick = () => {
-      if (confirm(`Withdraw team ${t.name}?`)) {
+      if (confirm(`Withdraw team ${t.name} and all its karts?`)) {
+        t.karts.forEach(k => delete S.round.quali[k.id]);
         S.roster = S.roster.filter(x => x.id !== t.id);
-        delete S.round.quali[t.id];
         save(); renderAll();
       }
     };
+    const kadd = d.querySelector('.kadd');
+    if (kadd) {
+      const addKart = () => {
+        const nm = d.querySelector('.kname').value.trim().toUpperCase();
+        if (!nm) return;
+        t.karts.push({ id: S.nextId++, name: nm });
+        save();
+        say(`${nm} joins the team ${t.name} stable.`, { chime: false });
+        renderPaddock();
+      };
+      kadd.onclick = addKart;
+      d.querySelector('.kname').addEventListener('keydown', e => { if (e.key === 'Enter') addKart(); });
+    }
+    d.querySelectorAll('.kx').forEach(b => b.onclick = () => {
+      const k = t.karts[+b.dataset.i];
+      if (t.karts.length === 1) { say('A team needs at least one kart.'); return; }
+      if (confirm(`Retire kart ${k.name}?`)) {
+        delete S.round.quali[k.id];
+        t.karts.splice(+b.dataset.i, 1);
+        save(); renderAll();
+      }
+    });
     const addCrew = () => {
       const nm = d.querySelector('.cname').value.trim();
       const role = d.querySelector('.crole').value;
@@ -219,51 +275,52 @@ function renderPaddock() {
   });
 }
 
-/* ═══════════ QUALIFYING ═══════════ */
-let QR = null; // live run: {teamId, curPen, curDeleted, undo:[]}
+/* ═══════════ QUALIFYING — every kart runs ═══════════ */
+let QR = null; // live run: {kid, curPen, curDeleted, undo:[]}
 
-function qualiBest(id) {
-  const q = S.round.quali[id];
+function qualiBest(kid) {
+  const q = S.round.quali[kid];
   if (!q || !q.laps.length) return null;
   const ok = q.laps.filter(l => !l.deleted).map(l => l.raw + l.pen);
   return ok.length ? Math.min(...ok) : null;
 }
 function qualiOrder() {
-  return S.roster
-    .map(t => ({ id: t.id, best: qualiBest(t.id) }))
+  return kartsAll()
+    .map(({ k }) => ({ id: k.id, best: qualiBest(k.id) }))
     .sort((a, b) => (a.best ?? Infinity) - (b.best ?? Infinity));
 }
 
 function renderQuali() {
   const list = $('qualiTeamList');
   list.innerHTML = '';
-  if (!S.roster.length) { list.innerHTML = '<div class="empty">check teams in at the paddock first</div>'; }
-  S.roster.forEach(t => {
-    const best = qualiBest(t.id);
+  const all = kartsAll();
+  if (!all.length) { list.innerHTML = '<div class="empty">check teams in at the paddock first</div>'; }
+  all.forEach(({ k }) => {
+    const best = qualiBest(k.id);
     const b = document.createElement('button');
     b.className = 'qrow' + (best != null ? ' done' : '');
-    b.innerHTML = `<span class="qn">${t.name}</span><span class="qt">${best != null ? fmt(best) : 'NO TIME'} →</span>`;
-    b.onclick = () => openRun(t.id);
+    b.innerHTML = `<span class="qn">${label(k.id)}</span><span class="qt">${best != null ? fmt(best) : 'NO TIME'} →</span>`;
+    b.onclick = () => openRun(k.id);
     list.appendChild(b);
   });
   // provisional grid
   const rows = qualiOrder();
   const tbl = $('gridTable');
-  tbl.innerHTML = '<tr><th>POS</th><th>TEAM</th><th>BEST LAP</th></tr>';
+  tbl.innerHTML = '<tr><th>POS</th><th>KART</th><th>BEST LAP</th></tr>';
   rows.forEach((r, i) => {
     const tr = document.createElement('tr');
     if (i === 0 && r.best != null) tr.className = 'p1';
-    tr.innerHTML = `<td class="pos">P${i + 1}</td><td>${team(r.id).name}</td><td class="num">${fmt(r.best)}</td>`;
+    tr.innerHTML = `<td class="pos">P${i + 1}</td><td>${label(r.id)}</td><td class="num">${fmt(r.best)}</td>`;
     tbl.appendChild(tr);
   });
 }
 
-function openRun(id) {
-  QR = { teamId: id, curPen: 0, curDeleted: false, undo: [] };
-  if (!S.round.quali[id]) S.round.quali[id] = { laps: [] };
+function openRun(kid) {
+  QR = { kid, curPen: 0, curDeleted: false, undo: [] };
+  if (!S.round.quali[kid]) S.round.quali[kid] = { laps: [] };
   $('qualiPick').classList.add('hidden');
   $('qualiRun').classList.remove('hidden');
-  $('qrTeam').textContent = team(id).name;
+  $('qrTeam').textContent = label(kid);
   $('qrStatus').textContent = 'IN THE PIT BOX';
   $('qrClock').textContent = '0:00.0';
   $('qrPre').classList.remove('hidden');
@@ -272,20 +329,19 @@ function openRun(id) {
 }
 function updateLapline() {
   if (!QR) return;
-  const q = S.round.quali[QR.teamId];
+  const q = S.round.quali[QR.kid];
   const n = q.laps.length + (T ? 1 : 0);
   const flags = (QR.curDeleted ? ' · LAP DELETED' : '') + (QR.curPen ? ` · +${QR.curPen / 1000}s` : '');
-  $('qrLapline').textContent = `LAP ${T ? n : '—'} OF ${S.qualiLaps} · BEST ${fmt(qualiBest(QR.teamId))}${flags}`;
+  $('qrLapline').textContent = `LAP ${T ? n : '—'} OF ${S.qualiLaps} · BEST ${fmt(qualiBest(QR.kid))}${flags}`;
 }
 
 $('qrBack').onclick = () => { QR = null; $('qualiRun').classList.add('hidden'); $('qualiPick').classList.remove('hidden'); renderQuali(); };
-$('qrCall').onclick = () => say(`Team ${team(QR.teamId).name}, proceed to the start line.`, { alert: true });
+$('qrCall').onclick = () => say(`${speakLabel(QR.kid)}, proceed to the start line.`, { alert: true });
 
 $('qrStart').onclick = () => {
-  const t = team(QR.teamId);
   $('qrPre').classList.add('hidden');
   $('qrStatus').textContent = 'COUNTDOWN';
-  say(`Team ${t.name}. ${S.qualiLaps} laps. Best lap counts.`, { chime: false });
+  say(`${speakLabel(QR.kid)}. ${S.qualiLaps} laps. Best lap counts.`, { chime: false });
   let n = 3;
   const cd = setInterval(() => {
     if (n > 0) { beep(700, .15, .25); $('qrClock').textContent = n; n--; }
@@ -303,7 +359,7 @@ $('qrStart').onclick = () => {
 
 $('qrLap').onclick = () => {
   if (!T || T.pauseStart) return;
-  const q = S.round.quali[QR.teamId];
+  const q = S.round.quali[QR.kid];
   const total = clockNow();
   const prev = q.laps.reduce((a, l) => a + l.raw, 0);
   const lap = { raw: total - prev, pen: QR.curPen, deleted: QR.curDeleted };
@@ -313,8 +369,8 @@ $('qrLap').onclick = () => {
   const eff = lap.deleted ? null : lap.raw + lap.pen;
   if (lap.deleted) say(`Lap deleted. Track limits.`);
   else {
-    const allBests = qualiOrder().filter(r => r.id !== QR.teamId && r.best != null).map(r => r.best);
-    const pole = eff <= Math.min(...[...allBests, qualiBest(QR.teamId) ?? Infinity]);
+    const allBests = qualiOrder().filter(r => r.id !== QR.kid && r.best != null).map(r => r.best);
+    const pole = eff <= Math.min(...[...allBests, qualiBest(QR.kid) ?? Infinity]);
     say(`Lap ${q.laps.length}. ${speakTime(eff)}.${pole ? ' Provisional pole!' : ''}`, { alert: pole, chime: false });
   }
   if (q.laps.length >= S.qualiLaps) endRun();
@@ -332,7 +388,7 @@ $('qrRed').onclick = () => {
 $('qrUndo').onclick = () => {
   if (!QR || !QR.undo.length) return;
   const a = QR.undo.pop();
-  const q = S.round.quali[QR.teamId];
+  const q = S.round.quali[QR.kid];
   if (a === 'lap' && q.laps.length) q.laps.pop();
   if (a === 'cone') QR.curPen = Math.max(0, QR.curPen - 2000);
   if (a === 'limits') QR.curDeleted = false;
@@ -343,22 +399,22 @@ $('qrEnd').onclick = endRun;
 function endRun() {
   clockStop(); keepAwake(false);
   $('qrRed').textContent = '🚩 RED FLAG';
-  const best = qualiBest(QR.teamId);
-  say(`Run complete. Team ${team(QR.teamId).name}. Best lap ${best != null ? speakTime(best) : 'no time set'}.`);
+  const best = qualiBest(QR.kid);
+  say(`Run complete. ${speakLabel(QR.kid)}. Best lap ${best != null ? speakTime(best) : 'no time set'}.`);
   QR = null;
   $('qualiRun').classList.add('hidden');
   $('qualiPick').classList.remove('hidden');
   renderQuali();
 }
 
-/* ═══════════ RACE — HEATS ═══════════ */
-let HR = null; // live heat: {grid, laps, toGo, pens:[{id,label}], undo:[], finish:[]}
+/* ═══════════ RACE — HEATS (karts on the grid) ═══════════ */
+let HR = null; // live heat: {grid, laps, toGo, pens:[], undo:[], finish:[], vsc}
 
 function pendingGrid() {
+  const valid = new Set(kartsAll().map(({ k }) => k.id));
   if (S.round.nextGrid) {
-    // keep only teams still on the roster, append any new ones
-    const g = S.round.nextGrid.filter(id => S.roster.some(t => t.id === id));
-    S.roster.forEach(t => { if (!g.includes(t.id)) g.push(t.id); });
+    const g = S.round.nextGrid.filter(id => valid.has(id));
+    kartsAll().forEach(({ k }) => { if (!g.includes(k.id)) g.push(k.id); });
     return g;
   }
   return qualiOrder().map(r => r.id);
@@ -370,11 +426,11 @@ function renderRace() {
   S.round.nextGrid = grid; save();
   const box = $('gridEdit');
   box.innerHTML = '';
-  if (!grid.length) { box.innerHTML = '<div class="empty">no teams — check in at the paddock</div>'; }
+  if (!grid.length) { box.innerHTML = '<div class="empty">no karts — check in at the paddock</div>'; }
   grid.forEach((id, i) => {
     const d = document.createElement('div');
     d.className = 'orow' + (i === 0 ? ' p1' : '');
-    d.innerHTML = `<span class="opos">P${i + 1}</span><span class="oname">${team(id).name}</span>
+    d.innerHTML = `<span class="opos">P${i + 1}</span><span class="oname">${label(id)}</span>
       <button class="mini">▲</button><button class="mini">▼</button>`;
     const [up, dn] = d.querySelectorAll('.mini');
     up.onclick = () => { if (i > 0) { [grid[i - 1], grid[i]] = [grid[i], grid[i - 1]]; save(); renderRace(); } };
@@ -387,7 +443,7 @@ function renderRace() {
   S.round.heats.forEach(h => {
     const d = document.createElement('div');
     d.className = 'hitem';
-    const podium = h.result.filter(r => !r.dsq).slice(0, 3).map((r, i) => `${['🥇', '🥈', '🥉'][i]} ${team(r.id).name}`).join('  ');
+    const podium = h.result.filter(r => !r.dsq).slice(0, 3).map((r, i) => `${['🥇', '🥈', '🥉'][i]} ${label(r.id)}`).join('  ');
     d.innerHTML = `<b>HEAT ${h.n}</b> · ${h.laps} laps<br>${podium || '—'}`;
     hh.appendChild(d);
   });
@@ -408,7 +464,7 @@ $('heatStart').onclick = () => {
   $('hlClock').textContent = '—';
   renderPenChips();
   keepAwake(true);
-  say(`Heat ${S.round.heats.length + 1}. ${HR.laps} laps. Karts to the grid.`, { alert: true });
+  say(`Heat ${S.round.heats.length + 1}. ${HR.laps} laps. ${grid.length} karts to the grid.`, { alert: true });
   // F1 start: 5 lights on, random hold, lights out = GO
   let i = 0;
   const seq = setInterval(() => {
@@ -435,7 +491,7 @@ function renderPenChips() {
     const n = HR.pens.filter(p => p.id === id).length;
     const c = document.createElement('button');
     c.className = 'chip';
-    c.innerHTML = `${team(id).name}${n ? ` <span class="cpen">−${n}</span>` : ''}`;
+    c.innerHTML = `${label(id)}${n ? ` <span class="cpen">−${n}</span>` : ''}`;
     c.onclick = () => penMenu(id);
     box.appendChild(c);
   });
@@ -445,7 +501,7 @@ function penMenu(id) {
   const wrap = document.createElement('div');
   wrap.id = 'penMenu';
   wrap.innerHTML = `<div class="sheet">
-    <h2>PENALTY — ${team(id).name}</h2>
+    <h2>PENALTY — ${label(id)}</h2>
     <button class="big pen" data-p="CONTACT">RAMMING / CONTACT</button>
     <button class="big pen" data-p="CORNER CUT">CORNER CUT (gained a spot)</button>
     <button class="big pen" data-p="JUMP START">JUMP START</button>
@@ -457,7 +513,7 @@ function penMenu(id) {
     if (p) {
       HR.pens.push({ id, label: p });
       HR.undo.push('pen');
-      say(`Penalty. Team ${team(id).name}. ${p.toLowerCase()}. One position at the flag.`, { alert: true });
+      say(`Penalty. ${speakLabel(id)}. ${p.toLowerCase()}. One position at the flag.`, { alert: true });
       renderPenChips();
     }
     if (p !== undefined || e.target === wrap) wrap.remove();
@@ -529,17 +585,17 @@ function renderFinishTaps() {
     const c = document.createElement('button');
     c.className = 'chip';
     c.disabled = done;
-    c.textContent = team(id).name;
+    c.textContent = label(id);
     c.onclick = () => {
       HR.finish.push(id);
-      say(`P${HR.finish.length}. ${team(id).name}.`, { chime: false });
+      say(`P${HR.finish.length}. ${speakLabel(id)}.`, { chime: false });
       renderFinishTaps();
       if (HR.finish.length === HR.grid.length) buildResult();
     };
     box.appendChild(c);
   });
   const ord = $('hfOrder');
-  ord.innerHTML = HR.finish.map((id, i) => `<div class="orow"><span class="opos">P${i + 1}</span><span class="oname">${team(id).name}</span></div>`).join('');
+  ord.innerHTML = HR.finish.map((id, i) => `<div class="orow"><span class="opos">P${i + 1}</span><span class="oname">${label(id)}</span></div>`).join('');
 }
 $('hfUndo').onclick = () => { if (HR && HR.finish.length) { HR.finish.pop(); renderFinishTaps(); } };
 $('hfDNF').onclick = () => { if (HR) buildResult(); };
@@ -567,7 +623,7 @@ function renderResultEditor() {
     d.className = 'orow' + (r.dsq ? ' dsq' : i === 0 ? ' p1' : '');
     const note = r.dsq ? 'DSQ — foul play' : r.dnf ? 'DNF' : r.drops ? `${r.drops} penalt${r.drops > 1 ? 'ies' : 'y'} applied` : '';
     d.innerHTML = `<span class="opos">${r.dsq ? '✕' : 'P' + (i + 1)}</span>
-      <span class="oname">${team(r.id).name}</span><span class="onote">${note}</span>
+      <span class="oname">${label(r.id)}</span><span class="onote">${note}</span>
       <button class="mini">▲</button><button class="mini">▼</button><button class="mini">DSQ</button>`;
     const [up, dn, dq] = d.querySelectorAll('.mini');
     up.onclick = () => { if (i > 0) { [HR.result[i - 1], HR.result[i]] = [HR.result[i], HR.result[i - 1]]; renderResultEditor(); } };
@@ -594,47 +650,64 @@ $('hrConfirm').onclick = () => {
   S.round.nextGrid = [...HR.result.map(r => r.id)].reverse(); // default next grid: reverse finish
   save();
   const w = heat.result[0];
-  say(`Heat ${heat.n} result. Winner. Team ${team(w.id).name}!`, { alert: true });
+  say(`Heat ${heat.n} result. Winner. ${speakLabel(w.id)}!`, { alert: true });
   HR = null;
   $('heatResult').classList.add('hidden');
   $('heatSetup').classList.remove('hidden');
   renderAll();
 };
 
-/* ═══════════ STANDINGS ═══════════ */
+/* ═══════════ STANDINGS — karts score, teams total ═══════════ */
 function roundPoints() {
-  // teamName -> pts for the current round (heats + pole bonus)
-  const pts = {};
-  S.roster.forEach(t => pts[t.name] = 0);
+  const teamPts = {}, kartPts = {};
+  S.roster.forEach(t => teamPts[t.name] = 0);
   S.round.heats.forEach(h => h.result.forEach(r => {
-    const n = team(r.id).name;
-    pts[n] = (pts[n] || 0) + r.pts;
+    const { t } = findKart(r.id);
+    kartPts[r.id] = (kartPts[r.id] || 0) + r.pts;
+    teamPts[t.name] = (teamPts[t.name] || 0) + r.pts;
   }));
   const q = qualiOrder();
   if (q.length && q[0].best != null) {
-    const n = team(q[0].id).name;
-    pts[n] = (pts[n] || 0) + POLE_BONUS;
+    const { t } = findKart(q[0].id);
+    kartPts[q[0].id] = (kartPts[q[0].id] || 0) + POLE_BONUS;
+    teamPts[t.name] = (teamPts[t.name] || 0) + POLE_BONUS;
   }
-  return pts;
+  return { teamPts, kartPts };
 }
 
 function renderStandings() {
   $('todayTitle').textContent = `TODAY — ${S.round.name || 'UNNAMED CIRCUIT'}`;
-  const pts = roundPoints();
-  const rows = Object.entries(pts).sort((a, b) => b[1] - a[1]);
+  const { teamPts, kartPts } = roundPoints();
   const q = qualiOrder();
-  const poleName = q.length && q[0].best != null ? team(q[0].id).name : null;
+  const poleId = q.length && q[0].best != null ? q[0].id : null;
+
+  // team table (the championship)
+  const rows = Object.entries(teamPts).sort((a, b) => b[1] - a[1]);
   const tbl = $('todayTable');
   tbl.innerHTML = '<tr><th>POS</th><th>TEAM</th><th>PTS</th></tr>';
   if (!rows.length) tbl.innerHTML += '<tr><td colspan="3" class="empty">nothing scored yet</td></tr>';
   rows.forEach(([n, p], i) => {
     const tr = document.createElement('tr');
     if (i === 0 && p > 0) tr.className = 'p1';
-    tr.innerHTML = `<td class="pos">${i + 1}</td><td>${n}${n === poleName ? ' <small>①POLE</small>' : ''}</td><td class="num">${p}</td>`;
+    tr.innerHTML = `<td class="pos">${i + 1}</td><td>${n}</td><td class="num">${p}</td>`;
     tbl.appendChild(tr);
   });
 
-  // season championship
+  // kart table (today's entries)
+  const krows = kartsAll()
+    .map(({ k }) => [k.id, kartPts[k.id] || 0])
+    .sort((a, b) => b[1] - a[1]);
+  const kt = $('kartTable');
+  kt.innerHTML = '<tr><th>POS</th><th>KART</th><th>PTS</th></tr>';
+  if (!krows.length) kt.innerHTML += '<tr><td colspan="3" class="empty">no karts entered</td></tr>';
+  krows.forEach(([id, p], i) => {
+    const tr = document.createElement('tr');
+    if (i === 0 && p > 0) tr.className = 'p1';
+    tr.innerHTML = `<td class="pos">${i + 1}</td><td>${label(id)}${id === poleId ? ' <small>①POLE</small>' : ''}</td><td class="num">${p}</td>`;
+    kt.appendChild(tr);
+  });
+
+  // season championship (teams)
   const agg = {};
   S.season.rounds.forEach(r => Object.entries(r.points).forEach(([n, p]) => agg[n] = (agg[n] || 0) + p));
   const srows = Object.entries(agg).sort((a, b) => b[1] - a[1]);
@@ -664,7 +737,8 @@ $('closeRound').onclick = () => {
   const name = S.round.name || `ROUND ${S.season.rounds.length + 1}`;
   if (!confirm(`Close ${name} and bank the points to Season One?`)) return;
   const dbl = $('dblPoints').checked;
-  const pts = roundPoints();
+  const { teamPts } = roundPoints();
+  const pts = { ...teamPts };
   if (dbl) Object.keys(pts).forEach(k => pts[k] *= 2);
   S.season.rounds.push({
     name, date: new Date().toLocaleDateString(),
@@ -689,7 +763,7 @@ $('importBtn').onclick = () => {
   } catch (e) { say('That is not a valid PeGP backup.'); }
 };
 $('wipeBtn').onclick = () => {
-  if (confirm('RESET THE ENTIRE SEASON? Teams, rounds, championship — all of it.') && confirm('Seriously. Everything. Sure?')) {
+  if (confirm('RESET THE ENTIRE SEASON? Teams, karts, rounds, championship — all of it.') && confirm('Seriously. Everything. Sure?')) {
     localStorage.removeItem(SAVE_KEY); location.reload();
   }
 };
