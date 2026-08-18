@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PeGP Circuits</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>">
+<link rel="stylesheet" href="style.css">
+<style>
+  .rules { max-width: 760px; margin: 0 auto; padding: 16px; }
+  .rules p { font-size: 16px; line-height: 1.55; margin-bottom: 10px; }
+  .back { display: inline-block; margin: 12px 8px 0 0; font-weight: 900; color: var(--red); text-decoration: none; font-size: 14px; letter-spacing: 1px; }
+  .ccard {
+    display: block; text-decoration: none; color: var(--ink);
+    background: var(--card); border: 2px solid var(--ink); border-radius: 12px;
+    padding: 16px; margin-bottom: 14px; box-shadow: 4px 4px 0 rgba(0,0,0,.12);
+  }
+  .ccard:active { transform: translate(2px,2px); box-shadow: none; }
+  .ccard .cn { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+  .ccard .cn em { font-style: normal; color: var(--red); }
+  .ccard .tagline { font-size: 14px; font-weight: 700; color: var(--dim); margin: 2px 0 10px; }
+  .statrow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .stat { border: 2px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 900; letter-spacing: .5px; }
+  .stat b { color: var(--red); }
+  .bestfor { font-size: 14px; font-weight: 700; }
+  .bestfor b { font-weight: 900; }
+  .open { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 900; letter-spacing: 1px; color: #fff; background: var(--go); border-radius: 8px; padding: 8px 14px; }
+  .ghost { opacity: .75; border-style: dashed; }
+  .ghost .open { background: var(--dim); }
+  .stamp { text-align: center; font-size: 11px; letter-spacing: 2px; color: var(--dim); padding: 10px 0 30px; }
+  .howto { background: #fff6d8; border: 2px solid var(--gold); border-radius: 10px; padding: 12px; font-weight: 700; font-size: 14px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="checker"></div>
+  <div class="masthead">
+    <h1>Pe<em>GP</em> <span class="rc">CIRCUITS</span></h1>
+    <div class="sub">THE LAYOUT LIBRARY · SAME FIELD, DIFFERENT BEASTS</div>
+  </div>
+</header>
+
+<div class="rules">
+<a class="back" href="index.html">← RACE CONTROL</a>
+<a class="back" href="rules.html">RULEBOOK →</a>
+<a class="back" href="racecraft.html">SCHOOL →</a>
+
+<div class="howto">📋 HOW ROUNDS WORK: the Director picks a layout, sets cones by its setup sheet,
+and types its name into the PADDOCK tab. Every layout keeps its own lap record forever. The field
+rotates so the grass never learns.</div>
+
+<a class="ccard" href="circuit1.html">
+  <div class="cn">THE <em>FIGURE 8</em></div>
+  <div class="tagline">Sprint layout · designed by the Director's own blue marker</div>
+  <div class="statrow">
+    <span class="stat">LAP <b>~370 FT</b></span>
+    <span class="stat">TIME <b>33–42s</b></span>
+    <span class="stat">CORNERS <b>5 + THE X</b></span>
+    <span class="stat">KARTS/HEAT <b>3–4</b></span>
+    <span class="stat">LEGS <b>MERCIFUL</b></span>
+  </div>
+  <div class="bestfor">Tight, technical, Monaco pace. The walled single-file passage, the garden
+  loop, and the only <b>crossover in motorsport</b> your friends will ever race. <b>Best for:</b>
+  standard rounds, small grids, maximum chaos per foot.</div>
+  <span class="open">OPEN LAYOUT →</span>
+</a>
+
+<a class="ccard" href="circuit2.html">
+  <div class="cn">THE <em>GRAND CIRCUIT</em></div>
+  <div class="tagline">Endurance layout · the full field, both straights, six corners</div>
+  <div class="statrow">
+    <span class="stat">LAP <b>~465 FT</b></span>
+    <span class="stat">TIME <b>40–50s</b></span>
+    <span class="stat">CORNERS <b>6</b></span>
+    <span class="stat">KARTS/HEAT <b>4–6</b></span>
+    <span class="stat">LEGS <b>DESTROYED</b></span>
+  </div>
+  <div class="bestfor">The long one: dual straights down the tree corridor, the Hook in the top
+  pocket, the Garden Gate canyon, Eagles Corner at the bottom. A leg-killer by design — which is
+  exactly what a finale should be. <b>Best for:</b> THE PEMBROKE 10, double-points days, settling
+  championships.</div>
+  <span class="open">OPEN LAYOUT →</span>
+</a>
+
+<div class="ccard ghost">
+  <div class="cn">CIRCUIT <em>THREE</em></div>
+  <div class="tagline">Unbuilt · the green doodles are still on file</div>
+  <div class="statrow">
+    <span class="stat">LAP <b>???</b></span>
+    <span class="stat">CORNERS <b>???</b></span>
+    <span class="stat">STATUS <b>DIRECTOR'S MARKER REQUIRED</b></span>
+  </div>
+  <div class="bestfor">Draw a line on the satellite, send it in, and it becomes a real layout with
+  a map, a setup sheet, and its own lap record. The library grows every time you get bored.</div>
+  <span class="open">AWAITING BLUE MARKER</span>
+</div>
+
+<div class="stamp">PeGP LAYOUT LIBRARY · EST. 18 AUG 2026 · ONE FIELD, INFINITE RACETRACKS</div>
+</div>
+
+</body>
+</html>
