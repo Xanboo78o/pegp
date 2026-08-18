@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PeGP Race Control</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="checker"></div>
+  <div class="masthead">
+    <h1>Pe<em>GP</em> <span class="rc">RACE CONTROL</span></h1>
+    <div class="sub">PEMBROKE GRAND PRIX · SEASON ONE</div>
+  </div>
+  <button id="muteBtn" title="announcer on/off">🔊</button>
+</header>
+
+<nav id="tabs">
+  <button data-tab="paddock" class="on">PADDOCK</button>
+  <button data-tab="quali">QUALIFYING</button>
+  <button data-tab="race">RACE</button>
+  <button data-tab="standings">STANDINGS</button>
+  <a href="rules.html">RULEBOOK&nbsp;↗</a>
+</nav>
+
+<main>
+
+<!-- ══════════ PADDOCK ══════════ -->
+<section id="tab-paddock" class="tab on">
+  <div class="panel">
+    <h2>ROUND</h2>
+    <label class="field">CIRCUIT NAME
+      <input id="roundName" placeholder="e.g. MULCH VALLEY GP" maxlength="40">
+    </label>
+    <div class="cfgrow">
+      <label class="field small">QUALI LAPS <input id="cfgQualiLaps" type="number" min="1" max="10" value="3"></label>
+      <label class="field small">HEAT LAPS <input id="cfgHeatLaps" type="number" min="1" max="20" value="4"></label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>CHECK-IN</h2>
+    <div class="addteam">
+      <input id="tName" placeholder="TEAM NAME" maxlength="24">
+      <input id="tKart" placeholder="KART NAME" maxlength="24">
+      <input id="tD1" placeholder="driver 1" maxlength="20">
+      <input id="tD2" placeholder="driver 2" maxlength="20">
+      <button id="addTeamBtn" class="big go">CHECK IN ✓</button>
+    </div>
+    <div id="teamCards"></div>
+  </div>
+</section>
+
+<!-- ══════════ QUALIFYING ══════════ -->
+<section id="tab-quali" class="tab">
+  <div class="panel" id="qualiPick">
+    <h2>QUALIFYING — SOLO RUNS · BEST LAP SETS THE GRID</h2>
+    <div id="qualiTeamList"></div>
+  </div>
+
+  <div class="panel hidden" id="qualiRun">
+    <div class="runhead">
+      <div id="qrTeam" class="runteam"></div>
+      <div id="qrStatus" class="runstatus">IN THE PIT BOX</div>
+    </div>
+    <div id="qrClock" class="bigclock">0:00.0</div>
+    <div id="qrLapline" class="lapline">LAP — · BEST —</div>
+
+    <div class="btnrow" id="qrPre">
+      <button id="qrCall" class="big">📢 CALL TO LINE</button>
+      <button id="qrStart" class="big go">▶ START RUN</button>
+      <button id="qrBack" class="big dim">← BACK</button>
+    </div>
+
+    <div class="hidden" id="qrLive">
+      <button id="qrLap" class="giant">LAP ✓</button>
+      <div class="btnrow">
+        <button id="qrCone" class="big pen">CONE +2s</button>
+        <button id="qrLimits" class="big pen">TRACK LIMITS<br><small>lap deleted</small></button>
+        <button id="qrRed" class="big red">🚩 RED FLAG</button>
+      </div>
+      <div class="btnrow">
+        <button id="qrUndo" class="big dim">↩ UNDO</button>
+        <button id="qrEnd" class="big dim">END RUN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>PROVISIONAL GRID</h2>
+    <table id="gridTable" class="rtable"></table>
+  </div>
+</section>
+
+<!-- ══════════ RACE ══════════ -->
+<section id="tab-race" class="tab">
+  <div class="panel" id="heatSetup">
+    <h2 id="heatTitle">HEAT 1 — GRID</h2>
+    <div id="gridEdit"></div>
+    <div class="btnrow">
+      <button id="gridFromQuali" class="big dim">GRID = QUALI</button>
+      <button id="gridReverse" class="big dim">REVERSE GRID</button>
+      <button id="heatStart" class="big go">🏁 START HEAT</button>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="heatLive">
+    <div class="runhead">
+      <div class="runteam" id="hlTitle">HEAT 1</div>
+      <div class="runstatus" id="hlLaps">4 TO GO</div>
+    </div>
+    <div id="hlClock" class="bigclock">0:00.0</div>
+    <button id="hlLeaderLap" class="giant">LEADER ACROSS LINE ✓</button>
+    <h3>PENALTY → tap the kart</h3>
+    <div id="hlPenTeams" class="chiprow"></div>
+    <div class="btnrow">
+      <button id="hlRed" class="big red">🚩 RED FLAG</button>
+      <button id="hlUndo" class="big dim">↩ UNDO</button>
+      <button id="hlAbort" class="big dim">ABORT HEAT</button>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="heatFinish">
+    <h2>🏁 CHECKERED FLAG — tap karts in finishing order</h2>
+    <div id="hfChips" class="chiprow"></div>
+    <div id="hfOrder"></div>
+    <div class="btnrow">
+      <button id="hfUndo" class="big dim">↩ UNDO TAP</button>
+      <button id="hfDNF" class="big pen">REST = DNF →</button>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="heatResult">
+    <h2>RESULT — after penalties · adjust if the stewards disagree</h2>
+    <div id="hrList"></div>
+    <div class="btnrow">
+      <button id="hrConfirm" class="big go">CONFIRM HEAT ✓</button>
+      <button id="hrBack" class="big dim">← RE-TAP ORDER</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>HEATS TODAY</h2>
+    <div id="heatHistory"></div>
+  </div>
+</section>
+
+<!-- ══════════ STANDINGS ══════════ -->
+<section id="tab-standings" class="tab">
+  <div class="panel">
+    <h2 id="todayTitle">TODAY</h2>
+    <table id="todayTable" class="rtable"></table>
+    <label class="chk"><input type="checkbox" id="dblPoints"> DOUBLE POINTS ROUND (season finale)</label>
+    <button id="closeRound" class="big go">🏆 CLOSE ROUND → SEASON</button>
+  </div>
+
+  <div class="panel">
+    <h2>SEASON ONE CHAMPIONSHIP</h2>
+    <table id="seasonTable" class="rtable"></table>
+    <div id="roundLog"></div>
+  </div>
+
+  <div class="panel">
+    <h2>DATA</h2>
+    <div class="btnrow">
+      <button id="exportBtn" class="big dim">EXPORT</button>
+      <button id="importBtn" class="big dim">IMPORT</button>
+      <button id="wipeBtn" class="big red">RESET SEASON</button>
+    </div>
+    <textarea id="dataBox" rows="4" placeholder="season backup JSON appears here"></textarea>
+  </div>
+</section>
+
+</main>
+
+<div id="announcer"><span id="annText">RACE CONTROL ONLINE</span></div>
+
+<script src="main.js"></script>
+</body>
+</html>

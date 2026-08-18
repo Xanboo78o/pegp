@@ -1,0 +1,192 @@
+/* PeGP Race Control — bright, sunlight-readable, giant targets */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --ink: #111;
+  --paper: #f6f4ee;
+  --card: #ffffff;
+  --red: #d0021b;
+  --go: #0a7d2c;
+  --gold: #b8860b;
+  --dim: #666;
+  --line: #d8d4ca;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  padding-bottom: 64px;
+}
+
+/* ── header ── */
+header { background: #111; color: #fff; position: relative; padding: 14px 16px 12px; }
+.checker {
+  position: absolute; top: 0; left: 0; right: 0; height: 8px;
+  background:
+    repeating-conic-gradient(#fff 0% 25%, #111 0% 50%) 0 0 / 16px 8px;
+}
+h1 { font-size: 30px; font-weight: 900; letter-spacing: 1px; line-height: 1; margin-top: 4px; }
+h1 em { font-style: normal; color: var(--red); }
+h1 .rc { font-size: 14px; font-weight: 700; letter-spacing: 4px; color: #bbb; margin-left: 8px; }
+header .sub { font-size: 11px; letter-spacing: 3px; color: #888; margin-top: 4px; }
+#muteBtn {
+  position: absolute; right: 12px; top: 16px; font-size: 22px;
+  background: none; border: 2px solid #444; border-radius: 8px; padding: 4px 8px; cursor: pointer;
+}
+
+/* ── tabs ── */
+#tabs { display: flex; background: #222; overflow-x: auto; }
+#tabs button, #tabs a {
+  flex: 1; padding: 14px 10px; font-size: 14px; font-weight: 900; letter-spacing: 1px;
+  background: none; border: none; border-bottom: 4px solid transparent;
+  color: #999; cursor: pointer; white-space: nowrap; text-align: center; text-decoration: none;
+}
+#tabs .on { color: #fff; border-bottom-color: var(--red); }
+
+/* ── layout ── */
+main { max-width: 760px; margin: 0 auto; padding: 12px; }
+.tab { display: none; }
+.tab.on { display: block; }
+.hidden { display: none !important; }
+
+.panel {
+  background: var(--card); border: 2px solid var(--ink); border-radius: 12px;
+  padding: 14px; margin-bottom: 14px; box-shadow: 4px 4px 0 rgba(0,0,0,.12);
+}
+h2 { font-size: 15px; font-weight: 900; letter-spacing: 1.5px; margin-bottom: 10px; }
+h3 { font-size: 13px; font-weight: 900; letter-spacing: 1px; margin: 12px 0 6px; color: var(--dim); }
+
+/* ── forms ── */
+.field { display: block; font-size: 11px; font-weight: 900; letter-spacing: 1px; color: var(--dim); margin-bottom: 10px; }
+.field input { display: block; width: 100%; margin-top: 4px; }
+.cfgrow { display: flex; gap: 10px; }
+.cfgrow .field { flex: 1; }
+input, textarea {
+  font: inherit; font-size: 18px; font-weight: 700; padding: 10px;
+  border: 2px solid var(--ink); border-radius: 8px; width: 100%; background: #fff; color: var(--ink);
+}
+input[type=number] { width: 100%; }
+.addteam { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.addteam #addTeamBtn { grid-column: 1 / -1; }
+textarea { font-size: 12px; font-weight: 400; font-family: monospace; margin-top: 8px; }
+.chk { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; margin: 10px 0; }
+.chk input { width: 22px; height: 22px; }
+
+/* ── buttons ── */
+button { cursor: pointer; user-select: none; }
+.big {
+  font: inherit; font-size: 16px; font-weight: 900; letter-spacing: 1px;
+  padding: 14px 16px; border: 2px solid var(--ink); border-radius: 10px;
+  background: #fff; color: var(--ink); box-shadow: 3px 3px 0 rgba(0,0,0,.15);
+}
+.big:active, .giant:active, .chip:active { transform: translate(2px, 2px); box-shadow: none; }
+.big.go { background: var(--go); color: #fff; border-color: #064d1b; }
+.big.red { background: var(--red); color: #fff; border-color: #7a0110; }
+.big.pen { background: #ffcf33; }
+.big.dim { background: #eee; color: #444; }
+.big:disabled { opacity: .35; pointer-events: none; }
+.btnrow { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btnrow .big { flex: 1; min-width: 120px; }
+
+.giant {
+  display: block; width: 100%; padding: 34px 10px; margin-top: 10px;
+  font: inherit; font-size: 34px; font-weight: 900; letter-spacing: 2px;
+  background: var(--ink); color: #fff; border: none; border-radius: 14px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.25);
+}
+
+/* ── team cards ── */
+.tcard {
+  display: flex; align-items: center; gap: 10px;
+  border: 2px solid var(--ink); border-radius: 10px; padding: 10px; margin-bottom: 8px; background: #fff;
+}
+.tcard .tinfo { flex: 1; }
+.tcard .tname { font-size: 18px; font-weight: 900; }
+.tcard .tkart { font-size: 12px; font-weight: 700; color: var(--red); letter-spacing: 1px; }
+.tcard .tdrivers { font-size: 12px; color: var(--dim); }
+.tcard .x { font-size: 14px; font-weight: 900; background: none; border: 2px solid var(--line); border-radius: 8px; padding: 6px 10px; color: var(--dim); }
+
+/* quali team pick rows */
+.qrow {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  font: inherit; text-align: left; background: #fff;
+  border: 2px solid var(--ink); border-radius: 10px; padding: 12px; margin-bottom: 8px;
+}
+.qrow .qn { font-size: 17px; font-weight: 900; flex: 1; }
+.qrow .qt { font-size: 15px; font-weight: 900; color: var(--dim); }
+.qrow.done .qt { color: var(--go); }
+
+/* ── run screens ── */
+.runhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.runteam { font-size: 22px; font-weight: 900; }
+.runstatus { font-size: 13px; font-weight: 900; letter-spacing: 1px; color: var(--red); }
+.bigclock {
+  font-size: 64px; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums;
+  letter-spacing: 2px; margin: 8px 0 0;
+}
+.bigclock.paused { color: var(--red); }
+.lapline { text-align: center; font-size: 15px; font-weight: 900; letter-spacing: 1px; color: var(--dim); margin-bottom: 6px; }
+
+/* ── chips (penalty / finish taps) ── */
+.chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; font-size: 16px; font-weight: 900; padding: 12px 14px;
+  border: 2px solid var(--ink); border-radius: 999px; background: #fff;
+  box-shadow: 3px 3px 0 rgba(0,0,0,.15);
+}
+.chip:disabled { opacity: .3; pointer-events: none; }
+.chip .cpen { color: var(--red); font-size: 12px; }
+
+/* penalty menu overlay */
+#penMenu {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+#penMenu .sheet { background: var(--card); border-radius: 14px; padding: 16px; width: min(420px, 92vw); }
+#penMenu h2 { margin-bottom: 12px; }
+#penMenu .big { display: block; width: 100%; margin-bottom: 8px; }
+
+/* finish order + result lists */
+.orow {
+  display: flex; align-items: center; gap: 10px;
+  border: 2px solid var(--ink); border-radius: 10px; padding: 10px; margin-bottom: 6px; background: #fff;
+}
+.orow .opos { font-size: 20px; font-weight: 900; width: 44px; }
+.orow .oname { flex: 1; font-size: 17px; font-weight: 900; }
+.orow .onote { font-size: 12px; font-weight: 700; color: var(--red); }
+.orow .mini { font-size: 15px; font-weight: 900; border: 2px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; }
+.orow.dsq { opacity: .55; background: #f2dede; }
+.orow.p1 { background: #fff6d8; border-color: var(--gold); }
+
+/* ── tables ── */
+.rtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.rtable th { font-size: 11px; letter-spacing: 1px; color: var(--dim); text-align: left; padding: 6px 8px; border-bottom: 2px solid var(--ink); }
+.rtable td { padding: 9px 8px; border-bottom: 1px solid var(--line); font-size: 16px; font-weight: 700; }
+.rtable td.pos { font-weight: 900; width: 40px; }
+.rtable tr.p1 td { background: #fff6d8; font-weight: 900; }
+.rtable td.num { text-align: right; font-weight: 900; }
+
+/* heat history + round log */
+.hitem { border: 2px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+.hitem b { font-weight: 900; }
+
+/* ── announcer bar ── */
+#announcer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: #111; color: #ffd23f; font-weight: 900; font-size: 15px; letter-spacing: 1px;
+  padding: 12px 16px; text-transform: uppercase;
+  border-top: 4px solid var(--red);
+}
+#announcer.flash { animation: annflash .5s 3; }
+@keyframes annflash { 50% { background: var(--red); color: #fff; } }
+
+.empty { color: var(--dim); font-size: 14px; font-weight: 700; padding: 6px 0; }
+
+@media (max-width: 480px) {
+  h1 { font-size: 24px; }
+  .bigclock { font-size: 52px; }
+  .giant { font-size: 26px; padding: 26px 10px; }
+  .addteam { grid-template-columns: 1fr; }
+}
