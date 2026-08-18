@@ -365,7 +365,8 @@ $('gridReverse').onclick = () => { S.round.nextGrid = pendingGrid().reverse(); s
 $('heatStart').onclick = () => {
   const grid = pendingGrid();
   if (grid.length < 2) { say('A race needs at least 2 karts on the grid.'); return; }
-  HR = { grid, laps: S.heatLaps, toGo: S.heatLaps, pens: [], undo: [], finish: [] };
+  HR = { grid, laps: S.heatLaps, toGo: S.heatLaps, pens: [], undo: [], finish: [], vsc: false };
+  $('hlVSC').textContent = '🟡 VSC';
   $('heatSetup').classList.add('hidden');
   $('heatLive').classList.remove('hidden');
   $('hlTitle').textContent = `HEAT ${S.round.heats.length + 1}`;
@@ -438,6 +439,18 @@ $('hlLeaderLap').onclick = () => {
   $('hlLaps').textContent = `${HR.toGo} TO GO`;
   say(HR.toGo === 1 ? 'FINAL LAP!' : `${HR.toGo} laps to go.`, { alert: HR.toGo === 1, chime: false });
 };
+$('hlVSC').onclick = () => {
+  if (!HR || !T) return;
+  HR.vsc = !HR.vsc;
+  if (HR.vsc) {
+    $('hlVSC').textContent = '🟢 END VSC';
+    say('Virtual safety kart deployed. Walking pace. Hold your gaps. No overtaking.', { alert: true });
+  } else {
+    $('hlVSC').textContent = '🟡 VSC';
+    say('Virtual safety kart ending. Stand by.', { alert: true });
+    setTimeout(() => { if (HR && !HR.vsc && T) { horn(); say('Green flag! Racing!', { chime: false, alert: true }); } }, 2500);
+  }
+};
 $('hlRed').onclick = () => {
   if (!T) return;
   const paused = clockPauseToggle();
@@ -455,6 +468,7 @@ $('hlAbort').onclick = () => {
   if (confirm('Abort this heat? Nothing will be scored.')) {
     clockStop(); keepAwake(false); HR = null;
     $('hlRed').textContent = '🚩 RED FLAG';
+    $('hlVSC').textContent = '🟡 VSC';
     $('heatLive').classList.add('hidden');
     $('heatSetup').classList.remove('hidden');
     say('Heat abandoned.');
@@ -465,6 +479,8 @@ $('hlAbort').onclick = () => {
 function checkered() {
   clockStop(); keepAwake(false);
   $('hlRed').textContent = '🚩 RED FLAG';
+  $('hlVSC').textContent = '🟡 VSC';
+  if (HR) HR.vsc = false;
   say('CHECKERED FLAG!', { alert: true });
   $('heatLive').classList.add('hidden');
   $('heatFinish').classList.remove('hidden');
