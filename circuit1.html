@@ -16,7 +16,7 @@
   .law { background: #fff6d8; border: 2px solid var(--gold); border-radius: 10px; padding: 12px; font-weight: 900; font-size: 15px; margin: 10px 0; }
   .danger { background: #fde8e8; border: 2px solid var(--red); border-radius: 10px; padding: 12px; font-weight: 900; font-size: 15px; margin: 10px 0; }
   .mapwrap { overflow-x: auto; border: 2px solid var(--ink); border-radius: 10px; background: #dcedc8; }
-  .mapwrap svg { display: block; min-width: 700px; width: 100%; height: auto; }
+  .mapwrap svg { display: block; width: 100%; max-width: 480px; margin: 0 auto; height: auto; }
   .ptable { width: 100%; border-collapse: collapse; margin: 8px 0; }
   .ptable th { font-size: 11px; letter-spacing: 1px; color: var(--dim); text-align: left; padding: 6px; border-bottom: 2px solid var(--ink); }
   .ptable td { padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 700; }
@@ -31,7 +31,7 @@
   <div class="checker"></div>
   <div class="masthead">
     <h1>Pe<em>GP</em> <span class="rc">CIRCUIT ONE</span></h1>
-    <div class="sub">ROUND 1 LAYOUT · ~600 FT · 5 CORNERS · NAME TBD BY THE DIRECTOR</div>
+    <div class="sub">ROUND 1 LAYOUT · ~465 FT · 6 CORNERS · SURVEYED BY SATELLITE</div>
   </div>
 </header>
 
@@ -42,189 +42,226 @@
 
 <div class="panel">
   <div class="art">THE MAP</div>
-  <h2>TRACK MAP — to scale (grid squares = 25 ft)</h2>
+  <h2>TRACK MAP — same orientation as the satellite photo (road left · trees right · Eagles at the bottom)</h2>
   <div class="mapwrap">
-  <svg viewBox="-20 -70 395 165" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
-    <!-- 25ft reference grid -->
+  <svg viewBox="-38 -14 152 276" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
     <defs>
-      <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
-        <path d="M25 0H0V25" fill="none" stroke="#b7cf9c" stroke-width=".6"/>
+      <pattern id="buf" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="5" height="5" fill="#f3d1d1"/>
+        <path d="M0 0V5" stroke="#d0021b" stroke-width="1.3"/>
       </pattern>
-      <pattern id="buf" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-        <rect width="6" height="6" fill="#f3d1d1"/>
-        <path d="M0 0V6" stroke="#d0021b" stroke-width="1.6"/>
+      <pattern id="sfchk" width="3" height="3" patternUnits="userSpaceOnUse">
+        <rect width="1.5" height="1.5" fill="#111"/><rect x="1.5" y="1.5" width="1.5" height="1.5" fill="#111"/>
+        <rect x="1.5" width="1.5" height="1.5" fill="#fff"/><rect y="1.5" width="1.5" height="1.5" fill="#fff"/>
       </pattern>
+      <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#555"/></marker>
     </defs>
 
+    <!-- roads -->
+    <polygon points="-16,-12 -16,250 0,250 0,60 20,0 24,-12" fill="#9c9c9c"/>
+    <rect x="-16" y="238" width="120" height="14" fill="#9c9c9c"/>
+    <polygon points="20,0 90,-4 90,-12 24,-12" fill="#9c9c9c"/>
+    <text x="-11" y="120" font-size="5.4" font-weight="900" fill="#fff" transform="rotate(90 -8 120)">ROAD — CARS LIVE HERE</text>
+    <text x="30" y="247.5" font-size="5.4" font-weight="900" fill="#fff" letter-spacing="2">EAGLES ST.</text>
+
     <!-- field -->
-    <polygon points="0,0 230,0 320.6,-42.3 343.4,6.6 230,75 0,75"
-             fill="#cde3ae" stroke="#2f5d1e" stroke-width="1.5"/>
-    <polygon points="0,0 230,0 320.6,-42.3 343.4,6.6 230,75 0,75" fill="url(#grid)"/>
+    <polygon points="20,0 90,-4 90,238 0,238 0,60" fill="#cde3ae" stroke="#2f5d1e" stroke-width="1.2"/>
 
-    <!-- road buffer: bottom 15ft of main rect + dogleg road side -->
-    <polygon points="0,60 230,60 337,13 343.4,6.6 230,75 0,75" fill="url(#buf)" opacity=".85"/>
+    <!-- buffers: left, top, bottom -->
+    <polygon points="20,0 26,0 15,60 15,238 0,238 0,60" fill="url(#buf)" opacity=".85"/>
+    <polygon points="20,0 90,-4 90,8 24,10" fill="url(#buf)" opacity=".85"/>
+    <rect x="0" y="223" width="90" height="15" fill="url(#buf)" opacity=".85"/>
 
-    <!-- road -->
-    <polygon points="0,77 230,77 346,7 352,17 232,88 0,88" fill="#9c9c9c"/>
-    <text x="110" y="84.5" font-size="6.5" font-weight="900" fill="#fff" letter-spacing="2">ROAD — CARS. BUFFER IS SACRED.</text>
-
-    <!-- tree line / mulch -->
-    <rect x="-14" y="-8" width="250" height="8" fill="#7a4a21" rx="2"/>
+    <!-- tree row (right edge) -->
+    <rect x="80" y="12" width="8" height="200" fill="#7a4a21" opacity=".5" rx="2"/>
     <g fill="#2f5d1e">
-      <circle cx="-4" cy="-4" r="4.5"/><circle cx="18" cy="-4.5" r="5"/><circle cx="42" cy="-4" r="4.5"/>
-      <circle cx="66" cy="-4.5" r="5"/><circle cx="90" cy="-4" r="4.5"/><circle cx="114" cy="-4.5" r="5"/>
-      <circle cx="138" cy="-4" r="4.5"/><circle cx="162" cy="-4.5" r="5"/><circle cx="186" cy="-4" r="4.5"/>
-      <circle cx="210" cy="-4.5" r="5"/><circle cx="232" cy="-6" r="4.5"/>
+      <circle cx="84" cy="18" r="3.6"/><circle cx="84" cy="31" r="3.9"/><circle cx="84" cy="44" r="3.6"/>
+      <circle cx="84" cy="57" r="3.9"/><circle cx="84" cy="70" r="3.6"/><circle cx="84" cy="83" r="3.9"/>
+      <circle cx="84" cy="96" r="3.6"/><circle cx="84" cy="109" r="3.9"/><circle cx="84" cy="122" r="3.6"/>
+      <circle cx="84" cy="135" r="3.9"/><circle cx="84" cy="148" r="3.6"/><circle cx="84" cy="161" r="3.9"/>
+      <circle cx="84" cy="174" r="3.6"/><circle cx="84" cy="187" r="3.9"/><circle cx="84" cy="200" r="3.6"/>
     </g>
-    <text x="60" y="-11" font-size="6" font-weight="900" fill="#2f5d1e" letter-spacing="1">TREE LINE (HIGH SIDE) — PADDOCK SHADE</text>
+    <text x="93" y="120" font-size="5" font-weight="900" fill="#2f5d1e" transform="rotate(90 93 120)">TREE ROW — SPECTATOR RAIL</text>
+
+    <!-- gardens -->
+    <g fill="#c9a06a" stroke="#7a4a21" stroke-width="1">
+      <rect x="14" y="38" width="30" height="31" rx="7"/>
+      <rect x="10" y="148" width="27" height="28" rx="7"/>
+      <rect x="12" y="221" width="20" height="17" rx="6"/>
+    </g>
+    <g font-size="5" font-weight="900" fill="#7a4a21">
+      <text x="21" y="56">GDN 1</text>
+      <text x="15" y="164">GDN 2</text>
+      <text x="14" y="232">GDN 3</text>
+    </g>
+
+    <!-- lamps + pole -->
+    <g fill="#333">
+      <circle cx="8" cy="22" r="1.4"/><circle cx="7" cy="88" r="1.4"/><circle cx="6" cy="153" r="1.4"/>
+    </g>
+    <g>
+      <circle cx="32" cy="106" r="2.2" fill="#d0021b"/>
+      <text x="-6" y="108" font-size="4.6" font-weight="900" fill="#d0021b">⚠ POLE?</text>
+    </g>
 
     <!-- slope arrow -->
-    <g transform="translate(178,32)">
-      <line x1="0" y1="0" x2="0" y2="22" stroke="#555" stroke-width="1.6" marker-end="url(#ah)"/>
-      <text x="3" y="14" font-size="5.5" font-weight="900" fill="#555">DOWNHILL</text>
+    <g transform="translate(66,215)">
+      <line x1="10" y1="0" x2="-8" y2="0" stroke="#555" stroke-width="1.4" marker-end="url(#ah)"/>
+      <text x="-8" y="6.5" font-size="4.6" font-weight="900" fill="#555">DOWNHILL</text>
     </g>
-    <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#555"/></marker></defs>
 
     <!-- track ribbon -->
-    <path id="trk" d="M 40,14 L 200,14 C 224,14 238,20 252,10
-             C 266,0 286,-16 300,-22 C 312,-27 322,-22 320,-12
-             C 318,-3 306,3 292,12 C 272,25 248,40 232,46 L 202,50
-             L 128,50 L 118,42 L 104,48 L 58,48
-             C 44,48 30,44 28,32 C 26,21 32,14 40,14 Z"
-          fill="none" stroke="#f1ead7" stroke-width="12" stroke-linejoin="round"/>
-    <path d="M 40,14 L 200,14 C 224,14 238,20 252,10
-             C 266,0 286,-16 300,-22 C 312,-27 322,-22 320,-12
-             C 318,-3 306,3 292,12 C 272,25 248,40 232,46 L 202,50
-             L 128,50 L 118,42 L 104,48 L 58,48
-             C 44,48 30,44 28,32 C 26,21 32,14 40,14 Z"
-          fill="none" stroke="#8a8a7a" stroke-width="12.8" stroke-linejoin="round" opacity=".25"/>
-    <path d="M 40,14 L 200,14 C 224,14 238,20 252,10
-             C 266,0 286,-16 300,-22 C 312,-27 322,-22 320,-12
-             C 318,-3 306,3 292,12 C 272,25 248,40 232,46 L 202,50
-             L 128,50 L 118,42 L 104,48 L 58,48
-             C 44,48 30,44 28,32 C 26,21 32,14 40,14 Z"
-          fill="none" stroke="#c9bfa5" stroke-width="1" stroke-dasharray="4 3"/>
+    <path d="M 68,185 L 68,35 C 68,24 60,16 48,14 L 38,13 C 28,12 20,14 19,22
+             C 18,30 26,33 34,32 C 44,34 48,40 48,50 L 48,72
+             C 48,78 46,81 42,83 C 34,85 24,82 21,89 C 18,95 23,100 31,100
+             L 44,100 C 52,101 51,108 51,114 L 50,180
+             C 50,192 56,197 62,195 C 68,193 68,190 68,185 Z"
+          fill="none" stroke="#8a8a7a" stroke-width="11.8" stroke-linejoin="round" opacity=".25"/>
+    <path d="M 68,185 L 68,35 C 68,24 60,16 48,14 L 38,13 C 28,12 20,14 19,22
+             C 18,30 26,33 34,32 C 44,34 48,40 48,50 L 48,72
+             C 48,78 46,81 42,83 C 34,85 24,82 21,89 C 18,95 23,100 31,100
+             L 44,100 C 52,101 51,108 51,114 L 50,180
+             C 50,192 56,197 62,195 C 68,193 68,190 68,185 Z"
+          fill="none" stroke="#f1ead7" stroke-width="11" stroke-linejoin="round"/>
+    <path d="M 68,185 L 68,35 C 68,24 60,16 48,14 L 38,13 C 28,12 20,14 19,22
+             C 18,30 26,33 34,32 C 44,34 48,40 48,50 L 48,72
+             C 48,78 46,81 42,83 C 34,85 24,82 21,89 C 18,95 23,100 31,100
+             L 44,100 C 52,101 51,108 51,114 L 50,180
+             C 50,192 56,197 62,195 C 68,193 68,190 68,185 Z"
+          fill="none" stroke="#c9bfa5" stroke-width=".9" stroke-dasharray="3.5 2.5"/>
+
+    <!-- lane divider -->
+    <line x1="59" y1="42" x2="59" y2="182" stroke="#d0021b" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="61.5" y="166" font-size="4.2" font-weight="900" fill="#d0021b" transform="rotate(90 61.5 166)">CONE + NOODLE DIVIDER</text>
 
     <!-- start/finish -->
-    <g transform="translate(72,14)">
-      <rect x="-1.6" y="-6.5" width="3.2" height="13" fill="url(#sfchk)"/>
-    </g>
-    <defs><pattern id="sfchk" width="3.2" height="3.2" patternUnits="userSpaceOnUse">
-      <rect width="1.6" height="1.6" fill="#111"/><rect x="1.6" y="1.6" width="1.6" height="1.6" fill="#111"/>
-      <rect x="1.6" width="1.6" height="1.6" fill="#fff"/><rect y="1.6" width="1.6" height="1.6" fill="#fff"/>
-    </pattern></defs>
-    <text x="63" y="3.5" font-size="5.5" font-weight="900" fill="#111">S/F ⟶</text>
+    <rect x="62.5" y="123.5" width="11" height="3" fill="url(#sfchk)"/>
+    <text x="75.5" y="127" font-size="4.8" font-weight="900" fill="#111">S/F ↑</text>
 
     <!-- pit box -->
-    <rect x="88" y="4" width="34" height="7" fill="#fff" stroke="#111" stroke-width="1" rx="1.5"/>
-    <text x="92" y="9.3" font-size="4.8" font-weight="900" fill="#111">PIT BOX</text>
-    <rect x="126" y="2" width="9" height="9" fill="#fff" stroke="#111" rx="1.5"/>
-    <text x="127" y="8.2" font-size="4" font-weight="900">DIR.</text>
+    <rect x="74.5" y="140" width="10" height="24" fill="#fff" stroke="#111" stroke-width=".8" rx="1.5"/>
+    <text x="77" y="155" font-size="4" font-weight="900" transform="rotate(90 77 155)">PIT BOX</text>
+
+    <!-- director + paddock -->
+    <rect x="26" y="116" width="14" height="8" fill="#fff" stroke="#111" stroke-width=".8" rx="1.5"/>
+    <text x="28" y="121.5" font-size="4.2" font-weight="900">DIR.</text>
+    <rect x="36" y="203" width="34" height="15" fill="#fff" stroke="#111" stroke-width=".8" rx="2"/>
+    <text x="40" y="212" font-size="4.4" font-weight="900">PADDOCK + TARPS</text>
+
+    <!-- walls -->
+    <g fill="#b8860b" font-size="4.6" font-weight="900">
+      <rect x="14" y="9.5" width="18" height="4" fill="#b8860b" opacity=".9" rx="1"/>
+      <text x="9" y="7">📦 WALL</text>
+      <rect x="46" y="198.5" width="16" height="4" fill="#b8860b" opacity=".9" rx="1"/>
+      <text x="47" y="207.5">📦 WALL</text>
+    </g>
 
     <!-- corner labels -->
     <g font-weight="900" fill="#111">
-      <circle cx="226" cy="11" r="5.4" fill="#d0021b"/><text x="223.6" y="13.5" font-size="6.5" fill="#fff">1</text>
-      <text x="206" y="0" font-size="5.5">THE ELBOW</text>
-      <circle cx="316" cy="-22" r="5.4" fill="#d0021b"/><text x="313.8" y="-19.5" font-size="6.5" fill="#fff">2</text>
-      <text x="291" y="-33" font-size="5.5">THE HOOK 📦</text>
-      <circle cx="236" cy="43" r="5.4" fill="#d0021b"/><text x="233.6" y="45.6" font-size="6.5" fill="#fff">3</text>
-      <text x="243" y="52" font-size="5.5">THE SLIDE</text>
-      <circle cx="111" cy="38" r="5.4" fill="#d0021b"/><text x="108.8" y="40.6" font-size="6.5" fill="#fff">4</text>
-      <text x="95" y="31.5" font-size="5.5">THE FLICK</text>
-      <circle cx="24" cy="30" r="5.4" fill="#d0021b"/><text x="21.8" y="32.6" font-size="6.5" fill="#fff">5</text>
-      <text x="6" y="20" font-size="5.5">THE WALL 📦</text>
-      <text x="6" y="26.5" font-size="4.6" fill="#0a7d2c">UPHILL EXIT — send it</text>
+      <circle cx="55" cy="15" r="4.6" fill="#d0021b"/><text x="53.2" y="17.2" font-size="5.6" fill="#fff">1</text>
+      <circle cx="19" cy="26" r="4.6" fill="#d0021b"/><text x="17.2" y="28.2" font-size="5.6" fill="#fff">2</text>
+      <text x="-14" y="24" font-size="5">THE</text><text x="-14" y="30" font-size="5">HOOK</text>
+      <circle cx="50" cy="63" r="4.6" fill="#d0021b"/><text x="48.2" y="65.2" font-size="5.6" fill="#fff">3</text>
+      <text x="55.5" y="66" font-size="5">FLOWERBOX</text>
+      <circle cx="38" cy="87" r="4.6" fill="#d0021b"/><text x="36.2" y="89.2" font-size="5.6" fill="#fff">4</text>
+      <text x="34" y="79.5" font-size="5">GARDEN GATE</text>
+      <circle cx="22" cy="96" r="4.6" fill="#d0021b"/><text x="20.2" y="98.2" font-size="5.6" fill="#fff">5</text>
+      <text x="-14" y="99" font-size="5">THE</text><text x="-14" y="105" font-size="5">WELL</text>
+      <text x="-14" y="111" font-size="4.2" fill="#0a7d2c">uphill exit</text>
+      <circle cx="57" cy="191" r="4.6" fill="#d0021b"/><text x="55.2" y="193.2" font-size="5.6" fill="#fff">6</text>
+      <text x="8" y="196" font-size="5">EAGLES</text><text x="8" y="202" font-size="5">CORNER</text>
     </g>
 
-    <!-- direction arrows on track -->
-    <g fill="#666" font-size="7" font-weight="900">
-      <text x="150" y="16.5">⟶</text>
-      <text x="160" y="52.5" transform="rotate(180 164 50)">⟶</text>
+    <!-- direction arrows -->
+    <g fill="#666" font-size="6" font-weight="900">
+      <text x="65" y="80" transform="rotate(-90 67 78)">⟶</text>
+      <text x="47" y="140" transform="rotate(90 49 138)">⟶</text>
     </g>
 
     <!-- marshal -->
-    <text x="150" y="33" font-size="5" font-weight="900" fill="#b8860b">🚩 MARSHAL</text>
+    <text x="90" y="102" font-size="4.6" font-weight="900" fill="#b8860b" transform="rotate(90 92 100)">🚩 MARSHAL</text>
 
     <!-- scale -->
-    <g transform="translate(255,68)">
-      <line x1="0" y1="0" x2="50" y2="0" stroke="#111" stroke-width="1.6"/>
-      <line x1="0" y1="-3" x2="0" y2="3" stroke="#111" stroke-width="1.6"/>
-      <line x1="50" y1="-3" x2="50" y2="3" stroke="#111" stroke-width="1.6"/>
-      <text x="14" y="9" font-size="6" font-weight="900" fill="#111">50 FT</text>
+    <g transform="translate(-34,252)">
+      <line x1="0" y1="0" x2="50" y2="0" stroke="#111" stroke-width="1.4"/>
+      <line x1="0" y1="-2.6" x2="0" y2="2.6" stroke="#111" stroke-width="1.4"/>
+      <line x1="50" y1="-2.6" x2="50" y2="2.6" stroke="#111" stroke-width="1.4"/>
+      <text x="15" y="8" font-size="5.4" font-weight="900" fill="#111">50 FT</text>
     </g>
   </svg>
   </div>
-  <p style="margin-top:8px"><small><b>Lap ≈ 600 ft.</b> Expected lap time 50–60 s at race pace.
-  Recommend <b>HEAT LAPS = 3</b> in the paddock settings for this layout — 4+ is finale-grade cardio.</small></p>
+  <p style="margin-top:8px"><small><b>Lap ≈ 465 ft — expect 40–50 s laps.</b> HEAT LAPS = 3 or 4 both work here.
+  The two long lanes share the east corridor, split by the cone divider — dragstrip style. The gardens
+  guard the road side; the track never goes west of them.</small></p>
 </div>
 
 <div class="panel">
   <div class="art">THE CORNERS</div>
   <h2>CORNER GUIDE</h2>
   <ul>
-    <li><span class="cname">T1 · THE ELBOW</span> — fast right sweeper following the field's 25° kink,
-    entered off the main straight with a slight downhill drift. Taken at nearly full pace on the wide
-    line. First real overtaking look of the lap: outbrake into the entry.</li>
-    <li><span class="cname">T2 · THE HOOK</span> — the hairpin at the far end of the dogleg. Slowest
-    point on the circuit. Cardboard tire-wall on the outside. Prime divebomb territory — and prime
-    switchback territory for whoever defends it.</li>
-    <li><span class="cname">T3 · THE SLIDE</span> — downhill left rejoining the main field. You arrive
-    with T2 exit speed and the slope pulling you wide toward the buffer. Discipline corner: greedy
-    exits earn track-limits calls.</li>
-    <li><span class="cname">T4 · THE FLICK</span> — noodle-gate chicane mid-way down the low straight.
-    Breaks the straight into two overtaking zones. Cutting it is the classic corner-cut crime.</li>
-    <li><span class="cname">T5 · THE WALL</span> — uphill 180° right. The boss fight. Late apex it and
-    carry everything you can, because the exit climbs to the start/finish straight and the hill eats
-    the unworthy. Tire-wall on the inside. This corner decides the lap.</li>
+    <li><span class="cname">T1</span> — flat-out left kink off the main straight into the top pocket.
+    Brave in quali, chaotic on lap 1 of a heat.</li>
+    <li><span class="cname">T2 · THE HOOK</span> — hairpin in the dogleg pocket, box wall between you
+    and the top road. Divebomb spot #1. Slowest point on the lap.</li>
+    <li><span class="cname">T3 · FLOWERBOX</span> — right-hand flick around Garden 1's corner, then you
+    run its east face, mulch inches off your right wheels. Clipping the garden = track limits, and
+    everyone can SEE the evidence in the flowerbed.</li>
+    <li><span class="cname">T4 · GARDEN GATE</span> — commit right, diving west into the canyon between
+    Garden 1 and Garden 2. Downhill entry between two mulch walls. The signature corner.</li>
+    <li><span class="cname">T5 · THE WELL</span> — the deep hairpin at the bottom of the gate,
+    <b>uphill exit</b> climbing back east between the gardens. The boss corner: carry speed out or the
+    slope drinks you. Garden 2's north face is your exit wall.</li>
+    <li><span class="cname">T6 · EAGLES CORNER</span> — long left hairpin at the south end, named for
+    the street it refuses to touch. Box wall on the exit. Divebomb spot #2, and the last passing
+    chance before S/F.</li>
   </ul>
 </div>
 
 <div class="panel">
   <div class="art">SETUP SHEET</div>
-  <h2>LAYING IT OUT — pace-based (1 pace ≈ 2.5 ft)</h2>
-  <p><b>Datum A</b> = the field corner where the 230 ft tree-line edge meets the 75 ft short side.
-  <b>Datum K</b> = the kink corner where the tree line bends 25°. "Along" = walk the tree line;
-  "in" = walk straight toward the road.</p>
+  <h2>LAYING IT OUT — everything measures from real objects (1 pace ≈ 2.5 ft)</h2>
   <table class="ptable">
-    <tr><th>WHAT</th><th>FROM</th><th>WALK</th></tr>
-    <tr><td>Start/finish line</td><td>A</td><td>29 along · 6 in — line spans 5 paces of track width</td></tr>
-    <tr><td>Pit box (2 cones + chalk/rope)</td><td>A</td><td>35–49 along · 2–4 in, beside the straight</td></tr>
-    <tr><td>Director's table</td><td>A</td><td>50 along · 1 in (shade + sees S/F and both straights)</td></tr>
-    <tr><td>T1 turn-in cone</td><td>A</td><td>82 along · 5 in</td></tr>
-    <tr><td>T1 apex pair</td><td>K</td><td>6 along the angled edge · 6 in</td></tr>
-    <tr><td>T2 hairpin cluster (5 cones)</td><td>K</td><td>34 along the angled edge · 8 in — arc them</td></tr>
-    <tr><td>T2 tire-wall boxes</td><td></td><td>3 paces beyond the T2 arc, on the outside</td></tr>
-    <tr><td>T3 gate pair</td><td>K</td><td>2 along · 17 in (downhill from the kink)</td></tr>
-    <tr><td>Low-straight kerb line</td><td>road curb</td><td>6 paces up from the curb, the whole length — noodles + cones every 10 paces</td></tr>
-    <tr><td>T4 chicane gates ×3</td><td>A</td><td>40 / 45 / 50 along the LOW side · zigzag 3 paces offset</td></tr>
-    <tr><td>T5 hairpin arc (5 cones)</td><td>A</td><td>10 along · 8–18 in, curling down to the low straight</td></tr>
-    <tr><td>T5 tire-wall boxes</td><td></td><td>inside of the T5 arc</td></tr>
+    <tr><th>WHAT</th><th>HOW</th></tr>
+    <tr><td>Buffer lines (LAW)</td><td>6 paces in from EVERY curb — left road, top curve, Eagles. Cone every 10 paces. Nothing lives roadward of these, ever.</td></tr>
+    <tr><td>Main straight (north lane)</td><td>5 paces out from the tree-row mulch, running the whole field. This is the widest, fastest lane.</td></tr>
+    <tr><td>Lane divider</td><td>4 paces west of the main straight — noodle snakes + a cone every 10 paces, from level with Garden 1's south edge down to the Eagles entry.</td></tr>
+    <tr><td>T1 kink</td><td>2 cones starting the left bend, level with the top of the tree row.</td></tr>
+    <tr><td>T2 Hook</td><td>5-cone arc in the pocket, apex 7 paces in from the left buffer. Wall boxes between the arc and the top buffer.</td></tr>
+    <tr><td>T3 Flowerbox</td><td>2 cones, 1 pace off Garden 1's northeast corner; the running lane hugs its east face.</td></tr>
+    <tr><td>T4 Garden Gate</td><td>Gate = 2 cones, 1 pace south of Garden 1's south face. The corridor into the gap IS the track.</td></tr>
+    <tr><td>T5 Well</td><td>4-cone hairpin arc in the NORTH half of the gap — apex 3 paces east of the left buffer. Exit lane runs 1–2 paces off Garden 2's north face, back east.</td></tr>
+    <tr><td>T6 Eagles</td><td>5-cone arc; the southernmost cone stays at least 12 paces north of the Eagles curb. Wall boxes south of the arc.</td></tr>
+    <tr><td>S/F line</td><td>Across the main straight, 8 paces north of Garden 2's north edge. Grid boxes stagger down the lane behind it.</td></tr>
+    <tr><td>Pit box</td><td>Right side of the main straight, tucked against the tree-row mulch just north of the Eagles exit. Enter after T6, rejoin before S/F.</td></tr>
+    <tr><td>Director's table</td><td>Infield, west of the divider, facing S/F (30 ft sightline). Cross the track only when it's cold.</td></tr>
+    <tr><td>Paddock + tarps</td><td>South pocket between Eagles Corner and the bottom buffer, next to Garden 3. Garden 3 lives inside the buffer — it's scenery, not track.</td></tr>
   </table>
-  <p><small>±3 ft on any cone is nothing — the SHAPE is what matters. Walk a lap before the first
-  session and fix anything that feels wrong. The Director's eye outranks this sheet.</small></p>
-  <div class="danger">⚠ HAZARD PROTOCOL — before first cone: walk the field and flag every utility
-  pole and every guy-wire anchor. Wire anchors are invisible at sprint speed. If any cone lands
-  within 4 paces of a pole or wire, slide the whole corner along until clear. Poles near the track
-  get the pool-noodle wrap. The wire itself: track never goes near it. Ever.</div>
-  <div class="law">🛡 THE BUFFER LAW — the 6 paces of grass along the road is not track, not runoff,
-  not shortcut. Nothing lives there. All runoff aims uphill or along the field. The downhill section
-  runs PARALLEL to the road by design — never re-angle it toward the curb.</div>
+  <p><small>±3 ft on any cone is nothing — the SHAPE matters. Walk one lap before the first session;
+  the Director's eye outranks this sheet.</small></p>
+  <div class="danger">⚠ HAZARD PROTOCOL — the satellite shows something pole-shaped mid-field on the
+  south side of the Garden 1–2 gap (marked ⚠ on the map), right where the Well's exit runs. Verify it
+  on foot. If it's a pole: noodle-wrap it and keep the exit lane north of it. Walk the top pocket for
+  guy-wire anchors before T2 goes live. Wire anchors get flagged AND a cone line keeping the track
+  clear — a cable is invisible at sprint speed.</div>
+  <div class="law">🛡 THE BUFFER LAW — roads on THREE sides here. Six paces off every curb is sacred
+  grass: not track, not runoff, not shortcut. The gardens guard the west side; the walls guard the
+  hairpins; the buffer guards everything else. Downhill runs parallel to the road, never at it.</div>
 </div>
 
 <div class="panel">
   <div class="art">KIT LIST</div>
   <h2>WHAT TO BRING</h2>
   <ul>
-    <li><b>~36 cones</b> (two cheap 20-packs) — corners 20, kerb/edge markers 12, S/F + pit 4</li>
-    <li><b>8–10 pool noodles</b> — low-straight kerb, chicane gates, pole wrap</li>
-    <li><b>6–10 cardboard boxes</b> — tire walls at T2 + T5, water bottle inside each, sponsor paint strongly encouraged</li>
-    <li><b>Flag kit</b> — green, yellow, red, white, checkered (see Racing School lesson 6)</li>
+    <li><b>~50 cones</b> (three cheap 20-packs) — corners 18, divider 14, buffers 12, S/F + grid + pit 6</li>
+    <li><b>10–12 pool noodles</b> — divider snakes, Well exit kerb, pole wrap</li>
+    <li><b>6–10 cardboard boxes</b> — walls at the Hook + Eagles, water bottle inside each, sponsor paint mandatory-ish</li>
+    <li><b>Flag kit</b> — green, yellow, red, white, checkered (Racing School lesson 6)</li>
     <li><b>Race Control</b> — laptop or phone, charged, volume UP</li>
-    <li><b>Teardown</b> — everything above fits in one bin. Field returns to boring by dinner.</li>
+    <li><b>Teardown</b> — one bin. Field goes back to boring by dinner.</li>
   </ul>
 </div>
 
-<div class="stamp">PeGP CIRCUIT ONE · SURVEYED 18 AUG 2026 · 230+100 FT × 75/54 FT · LAYOUT ROTATES NEXT ROUND</div>
+<div class="stamp">PeGP CIRCUIT ONE · SATELLITE SURVEY 18 AUG 2026 · GARDENS = ARMCO · LAYOUT ROTATES NEXT ROUND</div>
 </div>
 
 </body>
