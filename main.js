@@ -20,7 +20,19 @@ if (!S || !S.roster) {
         qualiLaps: 3, heatLaps: 4 };
 }
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
-function team(id) { return S.roster.find(t => t.id === id) || { name: '???', kart: '', d1: '', d2: '' }; }
+function team(id) { return S.roster.find(t => t.id === id) || { name: '???', kart: '', crew: [] }; }
+
+/* crew roles */
+const ROLES = ['DRIVER', 'RIDER', 'PIT MANAGER', 'MECHANIC', 'STRATEGIST', 'TARP SECURITY'];
+const ROLE_ICON = { 'DRIVER': '🏃', 'RIDER': '🪑', 'PIT MANAGER': '📋', 'MECHANIC': '🔧', 'STRATEGIST': '🧠', 'TARP SECURITY': '🛡️' };
+/* migrate old two-driver teams */
+S.roster.forEach(t => {
+  if (!t.crew) {
+    t.crew = [];
+    if (t.d1) t.crew.push({ name: t.d1, role: 'DRIVER' });
+    if (t.d2) t.crew.push({ name: t.d2, role: 'RIDER' });
+  }
+});
 
 /* ═══════════ AUDIO + ANNOUNCER ═══════════ */
 let AC = null, voice = null, speechOK = false;
@@ -154,10 +166,10 @@ $('addTeamBtn').onclick = () => {
   S.roster.push({
     id: S.nextId++, name,
     kart: $('tKart').value.trim().toUpperCase(),
-    d1: $('tD1').value.trim(), d2: $('tD2').value.trim()
+    crew: []
   });
   save();
-  ['tName', 'tKart', 'tD1', 'tD2'].forEach(i => $(i).value = '');
+  ['tName', 'tKart'].forEach(i => $(i).value = '');
   say(`Team ${name}. Checked in.`);
   renderAll();
 };
@@ -168,11 +180,19 @@ function renderPaddock() {
   if (!S.roster.length) { box.innerHTML = '<div class="empty">no teams checked in yet — the paddock is empty</div>'; return; }
   S.roster.forEach(t => {
     const d = document.createElement('div');
-    d.className = 'tcard';
+    d.className = 'tcard tall';
+    const crewHtml = t.crew.map((c, i) =>
+      `<span class="crewchip">${ROLE_ICON[c.role] || '👤'} <b>${c.name}</b> <small>${c.role}</small><button class="cx" data-i="${i}">✕</button></span>`
+    ).join('') || '<span class="empty">no crew yet — a team needs at least a driver and a rider</span>';
     d.innerHTML = `<div class="tinfo">
         <div class="tname">${t.name}</div>
         ${t.kart ? `<div class="tkart">🛠 ${t.kart}</div>` : ''}
-        <div class="tdrivers">${[t.d1, t.d2].filter(Boolean).join(' · ') || 'drivers TBD'}</div>
+        <div class="crewline">${crewHtml}</div>
+        <div class="crewadd">
+          <input class="cname" placeholder="crew name" maxlength="20">
+          <select class="crole">${ROLES.map(r => `<option>${r}</option>`).join('')}</select>
+          <button class="cadd">+</button>
+        </div>
       </div><button class="x">✕</button>`;
     d.querySelector('.x').onclick = () => {
       if (confirm(`Withdraw team ${t.name}?`)) {
@@ -181,6 +201,20 @@ function renderPaddock() {
         save(); renderAll();
       }
     };
+    const addCrew = () => {
+      const nm = d.querySelector('.cname').value.trim();
+      const role = d.querySelector('.crole').value;
+      if (!nm) return;
+      t.crew.push({ name: nm, role });
+      save();
+      say(`${nm} joins team ${t.name}. ${role.toLowerCase()}.`, { chime: false });
+      renderPaddock();
+    };
+    d.querySelector('.cadd').onclick = addCrew;
+    d.querySelector('.cname').addEventListener('keydown', e => { if (e.key === 'Enter') addCrew(); });
+    d.querySelectorAll('.cx').forEach(b => b.onclick = () => {
+      t.crew.splice(+b.dataset.i, 1); save(); renderPaddock();
+    });
     box.appendChild(d);
   });
 }
